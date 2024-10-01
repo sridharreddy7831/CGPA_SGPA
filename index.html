@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SGPA & CPA Calculator</title>
+    <style>
+        /* General Styling */
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            margin: 0;
+            background: linear-gradient(135deg, #0d0d0d, #121212);
+            background-image: url(a.avif);
+            background-size: cover; /* Cover the entire background */
+            background-position: center; /* Center the image */
+            background-repeat: no-repeat; /* Prevent the background from repeating */
+            color: #e0e0e0;
+            overflow: hidden;
+        }
+
+        h1, h2, h3 {
+            text-align: center;
+            color: #99eb2d;
+        }
+
+        input, button {
+            padding: 10px;
+            margin: 5px;
+            border-radius: 5px;
+            border: none;
+            background-color: #333;
+            color: #e0e0e0;
+        }
+
+        input:focus, button:hover {
+            outline: none;
+            background-color: #ff990055;
+            color: #000;
+        }
+
+        .container {
+            margin: 20px auto;
+            max-width: 600px;
+            position: relative;
+            z-index: 1; /* Ensures content is above the background */
+        }
+
+        table, th, td {
+            border: 1px solid #fffb00;
+            padding: 10px;
+            border-collapse: collapse;
+            color: #e0e0e0;
+            width: 100%;
+        }
+
+        .delete-btn {
+            cursor: pointer;
+            color: red;
+            font-size: 20px;
+        }
+
+        .delete-btn:hover {
+            color: darkred;
+        }
+
+        button {
+            cursor: pointer;
+            background-color: #13546a;
+            color: #000;
+        }
+
+        /* Tabs styling */
+        .tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        
+        .tab {
+            margin: 0 10px;
+            padding: 10px;
+            cursor: pointer;
+            background-color: #333;
+            border-radius: 5px;
+            color: #e0e0e0;
+        }
+
+        .tab:hover, .active-tab {
+            background-color: #1ab57f;
+            color: #000;
+        }
+
+        /* Hide inactive tab content */
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            input, button {
+                width: 100%;
+                box-sizing: border-box;
+            }
+
+            table, th, td {
+                font-size: 14px;
+            }
+        }
+
+        /* Background animation effect */
+        .background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('image.png') no-repeat center center fixed;
+            background-size: cover;
+            opacity: 0.2; /* Set the opacity of the background */
+            z-index: 0; /* Place it behind the content */
+            pointer-events: none; /* Ensure background doesn't capture mouse events */
+        }
+
+        /* Floating particles effect */
+        .particle {
+            position: absolute;
+            background: #ff9800;
+            border-radius: 50%;
+            animation: float 6s infinite ease-in-out;
+            z-index: 0; /* Behind the main content */
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-20px);
+            }
+            100% {
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="background"></div>
+
+    <h1>SGPA & CPA Calculator</h1>
+
+    <!-- Tabs for switching between SGPA and CPA -->
+    <div class="tabs">
+        <div id="sgpaTab" class="tab active-tab" onclick="showTab('sgpa')">SGPA</div>
+        <div id="cpaTab" class="tab" onclick="showTab('cpa')">CPA</div>
+    </div>
+
+    <!-- SGPA Calculation Section -->
+    <div id="sgpaContent" class="tab-content active">
+        <div class="container">
+            <h2>SGPA Calculation</h2>
+            <table>
+                <tr>
+                    <th>Grade</th>
+                    <th>Credits</th>
+                    <th>Action</th>
+                </tr>
+                <tbody id="subjectTable">
+                    <tr>
+                        <td><input type="text" placeholder="Grade (S/A/B/C etc)" class="grade" oninput="calculateSGPA()"></td>
+                        <td><input type="number" placeholder="Credits" class="credits" oninput="calculateSGPA()"></td>
+                        <td><span class="delete-btn" onclick="deleteRow(this)">&#10060;</span></td>
+                    </tr>
+                </tbody>
+            </table>
+            <button onclick="addRow()">Add Subject</button>
+            <button onclick="clearSGPA()">Clear</button>
+            <h3>Number of Subjects: <span id="subjectCount">1</span></h3>
+            <h3 id="sgpaResult">SGPA: </h3>
+        </div>
+    </div>
+
+    <!-- CPA Calculation Section -->
+    <div id="cpaContent" class="tab-content">
+        <div class="container">
+            <h2>CPA Calculation</h2>
+            <table>
+                <tr>
+                    <th>SGPA</th>
+                    <th>Total Credits</th>
+                    <th>Action</th>
+                </tr>
+                <tbody id="semesterTable">
+                    <tr>
+                        <td><input type="number" placeholder="SGPA" class="sgpa" oninput="calculateCPA()"></td>
+                        <td><input type="number" placeholder="Credits" class="credits" oninput="calculateCPA()"></td>
+                        <td><span class="delete-btn" onclick="deleteRow(this)">&#10060;</span></td>
+                    </tr>
+                </tbody>
+            </table>
+            <button onclick="addSemester()">Add Semester</button>
+            <button onclick="clearCPA()">Clear</button>
+            <h3>Number of Semesters: <span id="semesterCount">1</span></h3>
+            <h3 id="cpaResult">CPA: </h3>
+        </div>
+    </div>
+
+    <script>
+        // Function to show selected tab
+        function showTab(tabName) {
+            const sgpaTab = document.getElementById('sgpaTab');
+            const cpaTab = document.getElementById('cpaTab');
+            const sgpaContent = document.getElementById('sgpaContent');
+            const cpaContent = document.getElementById('cpaContent');
+
+            if (tabName === 'sgpa') {
+                sgpaTab.classList.add('active-tab');
+                cpaTab.classList.remove('active-tab');
+                sgpaContent.classList.add('active');
+                cpaContent.classList.remove('active');
+            } else {
+                sgpaTab.classList.remove('active-tab');
+                cpaTab.classList.add('active-tab');
+                sgpaContent.classList.remove('active');
+                cpaContent.classList.add('active');
+            }
+        }
+
+        // SGPA calculation functions
+        function addRow() {
+            const table = document.getElementById('subjectTable');
+            const row = table.insertRow();
+            row.innerHTML = `
+                <td><input type="text" placeholder="Grade (S/A/B/C etc)" class="grade" oninput="calculateSGPA()"></td>
+                <td><input type="number" placeholder="Credits" class="credits" oninput="calculateSGPA()"></td>
+                <td><span class="delete-btn" onclick="deleteRow(this)">&#10060;</span></td>
+            `;
+            updateSubjectCount();
+        }
+
+        function deleteRow(button) {
+            const row = button.parentElement.parentElement;
+            row.remove();
+            updateSubjectCount();
+            calculateSGPA();
+        }
+
+        function updateSubjectCount() {
+            const count = document.getElementById('subjectTable').rows.length;
+            document.getElementById('subjectCount').innerText = count;
+        }
+
+        function calculateSGPA() {
+            let totalGradePoints = 0;
+            let totalCredits = 0;
+
+            const grades = document.getElementsByClassName('grade');
+            const credits = document.getElementsByClassName('credits');
+
+            for (let i = 0; i < grades.length; i++) {
+                const gradeValue = getGradePoint(grades[i].value.toUpperCase());
+                const creditValue = parseFloat(credits[i].value);
+
+                if (gradeValue !== null && !isNaN(creditValue)) {
+                    totalGradePoints += gradeValue * creditValue;
+                    totalCredits += creditValue;
+                }
+            }
+
+            const sgpa = totalGradePoints / totalCredits || 0;
+            document.getElementById('sgpaResult').innerText = `SGPA: ${sgpa.toFixed(2)}`;
+        }
+
+        function getGradePoint(grade) {
+            switch (grade) {
+                case 'S': return 10;
+                case 'A': return 9;
+                case 'B': return 8;
+                case 'C': return 7;
+                case 'D': return 6;
+                case 'E': return 5;
+                case 'F': return 0;
+                default: return null;
+            }
+        }
+
+        function clearSGPA() {
+            const table = document.getElementById('subjectTable');
+            while (table.rows.length > 1) {
+                table.deleteRow(1);
+            }
+            document.querySelector('.grade').value = '';
+            document.querySelector('.credits').value = '';
+            updateSubjectCount();
+            calculateSGPA();
+        }
+
+        // CPA calculation functions
+        function addSemester() {
+            const table = document.getElementById('semesterTable');
+            const row = table.insertRow();
+            row.innerHTML = `
+                <td><input type="number" placeholder="SGPA" class="sgpa" oninput="calculateCPA()"></td>
+                <td><input type="number" placeholder="Credits" class="credits" oninput="calculateCPA()"></td>
+                <td><span class="delete-btn" onclick="deleteRow(this)">&#10060;</span></td>
+            `;
+            updateSemesterCount();
+        }
+
+        function updateSemesterCount() {
+            const count = document.getElementById('semesterTable').rows.length;
+            document.getElementById('semesterCount').innerText = count;
+        }
+
+        function calculateCPA() {
+            let totalGradePoints = 0;
+            let totalCredits = 0;
+
+            const sgpas = document.getElementsByClassName('sgpa');
+            const credits = document.getElementsByClassName('credits');
+
+            for (let i = 0; i < sgpas.length; i++) {
+                const sgpaValue = parseFloat(sgpas[i].value);
+                const creditValue = parseFloat(credits[i].value);
+
+                if (!isNaN(sgpaValue) && !isNaN(creditValue)) {
+                    totalGradePoints += sgpaValue * creditValue;
+                    totalCredits += creditValue;
+                }
+            }
+
+            const cpa = totalGradePoints / totalCredits || 0;
+            document.getElementById('cpaResult').innerText = `CPA: ${cpa.toFixed(2)}`;
+        }
+
+        function clearCPA() {
+            const table = document.getElementById('semesterTable');
+            while (table.rows.length > 1) {
+                table.deleteRow(1);
+            }
+            document.querySelector('.sgpa').value = '';
+            document.querySelector('.credits').value = '';
+            updateSemesterCount();
+            calculateCPA();
+        }
+
+
+    </script>
+</body>
+</html>
